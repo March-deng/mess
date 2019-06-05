@@ -1,62 +1,53 @@
 package main
 
 import (
-	"log"
-	"os"
-	"strconv"
+	"net"
 	"time"
+
+	"github.com/knq/escpos"
 )
 
-
-var openFile os.File
-var totalWrites int
-var entryPerLogFile int = 10
-var whenToStop int = 23
-
 func main() {
-	log.Println("test")
-	numberOfLogFiles := 0
-
-	filename := "/tmp/mylog.log"
-
-	err := setUpLogFile(filename)
-	log.Println(err)
+	conn, err := net.DialTimeout("tcp", "192.168.1.108:9100", 5*time.Second)
 	if err != nil {
-		log.Println("initial error")
-		os.Exit(-1)
+		panic(err)
 	}
-	// fmt.Println("start")
-	for {
-		log.Println(numberOfLogFiles, "this is a testing use of a log file")
-		numberOfLogFiles++
-		totalWrites++
-		// fmt.Println(numberOfLogFiles, totalWrites)
-		if numberOfLogFiles >= entryPerLogFile {
-			rotateFiles(filename)
-			numberOfLogFiles = 0
-		}
-		if totalWrites > whenToStop {
-			// fmt.Println("rotate")
-			rotateFiles(filename)
-			break
-		}
-		time.Sleep(1 * time.Millisecond)
+	defer conn.Close()
+	p := escpos.New(conn)
 
-	}
-	log.Println("end and exit")
-}
+	p.Init()
+	p.SetSmooth(1)
+	p.SetFontSize(2, 3)
+	p.SetFont("A")
+	p.Write("test ")
+	p.SetFont("B")
+	p.Write("test2 ")
+	p.SetFont("C")
+	p.Write("test3 ")
+	p.Formfeed()
 
-func rotateFiles(filename string) error {
-	openFile.Close()
-	os.Rename(filename, filename+"."+strconv.Itoa(totalWrites))
-	return setUpLogFile(filename)
-}
+	p.SetFont("B")
+	p.SetFontSize(1, 1)
 
-func setUpLogFile(filename string) error {
-	openFile, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
-	if err != nil {
-		return err
-	}
-	log.SetOutput(openFile)
-	return nil
+	p.SetEmphasize(1)
+	p.Write("halle")
+	p.Formfeed()
+
+	p.SetUnderline(1)
+	p.SetFontSize(4, 4)
+	p.Write("halle")
+
+	p.SetReverse(1)
+	p.SetFontSize(2, 4)
+	p.Write("halle")
+	p.Formfeed()
+
+	p.SetFont("C")
+	p.SetFontSize(8, 8)
+	p.Write("halle")
+	p.FormfeedN(5)
+
+	p.Cut()
+	p.End()
+
 }

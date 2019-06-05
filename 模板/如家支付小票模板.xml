@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <output>
+        <ticket>
+            <line>
+               <text align="center" length="42">{%= o.GPosConfig.store.name || "" %}</text>
+            </line>
+            <line>
+			<text align="center" length="42">地址：{%= o.GPosConfig.store.address %}</text>
+		    </line>
+            <line>
+                <text align="center" length="42">电话 Tel：{%= o.GPosConfig.store.telephone %}</text>
+            </line>
+            <line>
+                <text align="center" length="42">传真 Fax：{%= o.GPosConfig.store.fax %}</text>
+            </line>
+            <line>
+                <text align="center" length="42">-----------------</text>
+            </line>
+            <line></line>
+            <line>
+                <!-- 这里需要台号 -->
+                <text align="center" length="42">台号 TABLE：{%= o.TableNo %}</text>
+            </line>
+            <line>
+			    <text align ="left" length="10">日期:</text>
+			    <text align ="center" length="10">{%= o.orderList.endTime.substr(0,10) %}</text>
+			    <text align ="left" length="12">时间:</text>
+			    <text align ="center" length="10">{%= o.orderList.endTime.substr(11,8) %}</text>
+		    </line>
+            <line>
+                <text align ="left" length="10">员工 staff: </text>
+                <!-- 此处需要员工信息 -->
+			    <text align ="center" length="10">{%=o.orderList.busDate %}</text>
+                <!-- 此处需要就餐人数 -->
+			    <text align ="left" length="12">人数 cover：</text>
+			    <text align ="center" length="10">{%=o.orderList.ticketNo%}</text>
+            </line>
+            <line>
+                <text align ="left" length="10">print: </text>
+                <!-- 打印信息：意义不明 -->
+			    <text align ="center" length="10">{%=o.orderList.tableNo  %}</text>
+                <!-- check信息：意义不明 -->
+			    <text align ="left" length="12">check#: </text>
+			    <text align ="center" length="10">{%=o.orderList.peopleNumber%}</text>
+            </line>
+            {% for(var i=0;i<o.orderList.orderLine.length;i++){ %}
+                <line>
+                    <text align ="left" length="22">{%= o.orderList.orderLine[i].name || ""  %}</text>
+				    <text align ="right" length="6">{%= o.orderList.orderLine[i].retail && o.orderList.orderLine[i].retail %}</text>
+				    <text align ="right" length="6">x{%= o.orderList.orderLine[i].qty %}</text>
+				    <text align ="right" length="8">{%= o.orderList.orderLine[i].groessAmount && o.orderList.orderLine[i].groessAmount %}</text>
+                </line>
+                {% if(o.orderList.orderLine[i].combo && o.orderList.orderLine[i].combo.length>0) { %}
+      			{% for(var j=0,combo=o.orderList.orderLine[i].combo,comboLen=o.orderList.orderLine[i].combo.length;j<comboLen;j++){ %}
+					<line>
+						<text align ="left" length="18">  {%= combo[j].name || ""  %}</text>
+						<text align ="right" length="16">{%= combo[j].qty %}</text>
+					</line>
+					{% for(var k=0,topping=o.orderList.orderLine[i].combo[j].topping,toppingLen=o.orderList.orderLine[i].combo[j].topping.length;k<toppingLen;k++){ %}
+						<line>
+							<text align ="left" length="18">  +{%= topping[k].name || ""  %}</text>
+							<text align ="right" length="10">{%= topping[k].retail && topping[k].retail %}</text>
+							<text align ="right" length="6">x{%= topping[k].qty %}</text>
+							<text align ="right" length="8">{%= topping[k].groessAmount && topping[k].groessAmount %}</text>
+						</line>
+					{% } %}
+				{% } %}
+      		{% } %}
+            {% if(o.orderList.orderLine[i].topping && o.orderList.orderLine[i].topping.length>0) { %}
+				{% for(var m=0,topping=o.orderList.orderLine[i].topping,toppingLen=o.orderList.orderLine[i].topping.length;m<toppingLen;m++){ %}
+					<line>
+						<text align ="left" length="18">  +{%= topping[m].name || "" %}</text>
+						<text align ="right" length="10">{%= topping[m].retail && topping[m].retail %}</text>
+						<text align ="right" length="6">x{%= topping[m].qty %}</text>
+						<text align ="right" length="8">{%= topping[m].groessAmount && topping[m].groessAmount %}</text>
+				</line>
+				{% } %}
+			{% } %}
+		{% } %}
+        <line>
+            <text align="right" length="22">合计:</text>
+        </line>
+        <line>
+            <text align="right" length="22">折扣:</text>
+        </line>
+        <line>
+            <text align="right" length="22">小记:</text>
+        </line>
+        <line>
+            <text align="right" length="22">服务费:</text>
+        </line>
+        <line>
+            <text align="left" length="10">当前时间</text>
+            <text align="right" length="22">总计</text>
+        </line>
+        </ticket>
+    </output>

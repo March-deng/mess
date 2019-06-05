@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <output>
+        <ticket>
+        {% if(o.orderList.payments){ %}
+          	{% if(o.orderList.type === "REFUND") { %}
+        <line size="2"><text align="center" length="30" bold="true">退货单</text></line>
+			{% } %}
+            {% if(o.orderList.type === "RESET") { %}
+        <line size="2"><text align="center" length="30" bold="true">重结单</text></line>
+			{% } %}
+			{% if(o.orderList.type === "SALE") { %}
+        <line size="2"><text align="center" length="30" bold="true">{%= o.print ? '重印单' :'结账单'  %}</text></line>
+			{% } %}
+        <line></line>
+		 <line>
+			<text align="center" length="42">{%= o.GPosConfig.store.name || "" %}({%= o.GPosConfig.store.code %})</text>
+		</line>
+		<line>
+			<text align="center" length="42">地址：{%= o.GPosConfig.store.address %}</text>
+		</line>
+		<line>
+			<text align="center" length="42">====================================</text>
+		</line>
+		<line>
+			<text align ="left" length="10">交易日期:</text>
+			<text align ="center" length="10">{%= o.orderList.endTime.substr(0,10) %}</text>
+			<text align ="left" length="12">交易时间:</text>
+			<text align ="center" length="10">{%= o.orderList.endTime.substr(11,8) %}</text>
+		</line>
+		<line>
+			<text align ="left" length="10">营业日期: </text>
+			<text align ="center" length="10">{%=o.orderList.busDate %}</text>
+			<text align ="left" length="12">交易单号：</text>
+			<text align ="center" length="10">{%=o.orderList.ticketNo%}</text>
+		</line>
+		<line>
+			<text align ="left" length="10">桌号: </text>
+			<text align ="center" length="10">{%=o.orderList.tableNo  %}</text>
+			<text align ="left" length="12">就餐人数: </text>
+			<text align ="center" length="10">{%=o.orderList.peopleNumber%}</text>
+		</line>
+		<line>
+			<text align ="left" length="10">收银员: </text>
+			<text align ="center" length="10">{%= o.orderList.operator.name || "" %}</text>
+			<text align ="left" length="12">交易类型: </text>
+			{% if(o.orderList.type === "REFUND") { %}
+				<text align ="center" length="10">退货单</text>
+			{% } %}
+            {% if(o.orderList.type === "RESET") { %}
+				<text align ="center" length="10">重结单</text>
+			{% } %}
+			{% if(o.orderList.type === "SALE") { %}
+				<text align ="center" length="10">销售单</text>
+			{% } %}
+			
+		</line>
+		<line>
+			<text align="center" length="42">--------------------------------------------------</text>
+		</line>
+		<line>
+			<text align ="left" length="18">商品</text>
+			<text align ="right" length="10">单价</text>
+			<text align ="right" length="6">数量</text>
+			<text align ="right" length="8">金额</text>
+		</line>
+		<line>
+			<text>------------------------------------------</text>
+		</line>
+		{% for(var i=0;i<o.orderList.orderLine.length;i++){ %}
+			<line>
+				<text align ="left" length="22">{%= o.orderList.orderLine[i].name || ""  %}</text>
+				<text align ="right" length="6">{%= o.orderList.orderLine[i].retail && o.orderList.orderLine[i].retail %}</text>
+				<text align ="right" length="6">x{%= o.orderList.orderLine[i].qty %}</text>
+				<text align ="right" length="8">{%= o.orderList.orderLine[i].groessAmount && o.orderList.orderLine[i].groessAmount %}</text>
+			</line>
+      		{% if(o.orderList.orderLine[i].combo && o.orderList.orderLine[i].combo.length>0) { %}
+      			{% for(var j=0,combo=o.orderList.orderLine[i].combo,comboLen=o.orderList.orderLine[i].combo.length;j<comboLen;j++){ %}
+					<line>
+						<text align ="left" length="18">  {%= combo[j].name || ""  %}</text>
+						<text align ="right" length="16">{%= combo[j].qty %}</text>
+					</line>
+					{% for(var k=0,topping=o.orderList.orderLine[i].combo[j].topping,toppingLen=o.orderList.orderLine[i].combo[j].topping.length;k<toppingLen;k++){ %}
+						<line>
+							<text align ="left" length="18">  +{%= topping[k].name || ""  %}</text>
+							<text align ="right" length="10">{%= topping[k].retail && topping[k].retail %}</text>
+							<text align ="right" length="6">x{%= topping[k].qty %}</text>
+							<text align ="right" length="8">{%= topping[k].groessAmount && topping[k].groessAmount %}</text>
+						</line>
+					{% } %}
+				{% } %}
+      		{% } %}
+			{% if(o.orderList.orderLine[i].topping && o.orderList.orderLine[i].topping.length>0) { %}
+				{% for(var m=0,topping=o.orderList.orderLine[i].topping,toppingLen=o.orderList.orderLine[i].topping.length;m<toppingLen;m++){ %}
+					<line>
+						<text align ="left" length="18">  +{%= topping[m].name || "" %}</text>
+						<text align ="right" length="10">{%= topping[m].retail && topping[m].retail %}</text>
+						<text align ="right" length="6">x{%= topping[m].qty %}</text>
+						<text align ="right" length="8">{%= topping[m].groessAmount && topping[m].groessAmount %}</text>
+				</line>
+				{% } %}
+			{% } %}
+		{% } %}
+		<line>
+			<text>------------------------------------------</text>
+		</line>
+		<line>
+          	<text align="left" length="22">服务费:</text>
+            <text align ="right" length="20">{%= o.orderList.serviceFee.value || 0  %}</text>
+		</line>
+		<line>
+			<text align="center" length="42">--------------------------------------------------</text>
+		</line>
+		{% if(o.orderList.promotion.discount && o.orderList.promotion.discount.length>0) { %}
+			{% for(var p=0; p < o.orderList.promotion.discount.length ; p++){ %}
+            <line>
+                <text align="left" length="22">{%= o.orderList.promotion.discount[p].name || ""  %}</text>
+                <text align ="right" length="20">{%= o.orderList.promotion.discount[p].discount*-1%}</text>
+            </line>
+            {% } %}
+		{% } %}
+		<line>
+            <text align="left" length="22">折扣合计:</text>
+            <text align ="right" length="20">{%=o.orderList.discountAmount*-1 || 0 %}</text>
+		</line>
+        <line>
+			<text>------------------------------------------</text>
+		</line>
+		<line>
+          	<text align="left" length="22">抹零:</text>
+            <text align ="right" length="20">{%= o.orderList.overflowAmount || 0  %}</text>
+		</line>
+		<line>
+			<text align="center" length="42">--------------------------------------------------</text>
+		</line>
+		<line></line>
+		<line size="2">
+          	<text align="left" length="12">总计（RMB）:</text>
+            <text align ="right" length="9">{%=o.orderList.netAmount || 0%}</text>
+		</line>
+		<line>
+			<text>------------------------------------------</text>
+		</line>
+		{% for(var m=0,data=o.orderList.payments._private.result.payments;m<data.length;m++){ %}
+					<line>
+						<text align ="left" length="18">{%= data[m].payment_name || "" %}</text>
+						<text align ="right" length="10"></text>
+						<text align ="right" length="6"></text>
+						<text align ="right" length="8">{%= data[m].amount %}</text>
+				</line>
+				{% } %}
+
+
+         <line>
+			<text>------------------------------------------</text>
+		</line>
+		<line></line>
+		{%
+		data1=o.orderList.payments._private.result.payments
+		%}
+		<line>
+			<text align="left" length="12">交易订单号:  
+			</text>
+			<text align ="right" length="28">{%= data1[0].transaction_id %}</text>
+		</line>
+		<line></line>
+		<line>
+			<text align="left" length="24">房间/账号（ROOM/ACC.):  
+			</text>
+			<text align ="right" length="14">{%= data1[0].extend.room_id %}</text>
+		</line>
+		<line></line>
+		<line></line>
+		<line>
+			<text align="left" length="42">姓名/公司（GUEST/CO.):{%= data1[0].extend.room_name %}</text>
+		</line>
+		<line></line>
+		<line></line>
+		<line>
+			<text align="left" length="42">___________________________________</text>
+		</line>
+        {% } else{ %}
+        <image>kg.jpg</image>
+        <line size="2"><text align="center" length="20" bold="true">预打单</text></line>
+          <line></line>
+		 <line>
+			<text align="center" length="42">{%= o.GPosConfig.store.name || "" %}({%= o.GPosConfig.store.code %})</text>
+		</line>
+        <line>
+			<text>==========================================</text>
+		</line>
+		<line>
+			<text align ="left" length="10">桌号:</text>
+			<text align ="center" length="10">{%= o.orderList.tableNo %}</text>
+			<text align ="left" length="12">单号:</text>
+			<text align ="center" length="10">{%= o.orderList.ticketNo %}</text>
+		</line>
+		<line>
+			<text align ="left" length="10">开单时间:</text>
+			<text align ="center" length="25">{%= o.orderList.startTimeString
+ %}</text>
+		</line>
+		<line>
+			<text align ="left" length="10">开单人:</text>
+			<text align ="center" length="10">{%= o.orderList.operator.name %}</text>
+		</line>
+		<line>
+			<text align="center" length="42">--------------------------------------------------</text>
+		</line>
+		<line>
+			<text align ="left" length="18">商品</text>
+			<text align ="right" length="10">单价</text>
+			<text align ="right" length="6">数量</text>
+			<text align ="right" length="8">金额</text>
+		</line>
+		<line>
+			<text>------------------------------------------</text>
+		</line>
+		{% for(var i=0;i<o.orderList.orderLine.length;i++){ %}
+			<line>
+				<text align ="left" length="22">{%= o.orderList.orderLine[i].name || ""  %}</text>
+				<text align ="right" length="6">{%= o.orderList.orderLine[i].retail && o.orderList.orderLine[i].retail %}</text>
+				<text align ="right" length="6">x{%= o.orderList.orderLine[i].qty %}</text>
+				<text align ="right" length="8">{%= o.orderList.orderLine[i].groessAmount && o.orderList.orderLine[i].groessAmount %}</text>
+			</line>
+      		{% if(o.orderList.orderLine[i].combo && o.orderList.orderLine[i].combo.length>0) { %}
+      			{% for(var j=0,combo=o.orderList.orderLine[i].combo,comboLen=o.orderList.orderLine[i].combo.length;j<comboLen;j++){ %}
+					<line>
+						<text align ="left" length="18">  {%= combo[j].name || ""  %}</text>
+						<text align ="right" length="16">{%= combo[j].qty %}</text>
+					</line>
+					{% for(var k=0,topping=o.orderList.orderLine[i].combo[j].topping,toppingLen=o.orderList.orderLine[i].combo[j].topping.length;k<toppingLen;k++){ %}
+						<line>
+							<text align ="left" length="18">  +{%= topping[k].name || ""  %}</text>
+							<text align ="right" length="10">{%= topping[k].retail && topping[k].retail %}</text>
+							<text align ="right" length="6">x{%= topping[k].qty %}</text>
+							<text align ="right" length="8">{%= topping[k].groessAmount && topping[k].groessAmount %}</text>
+						</line>
+					{% } %}
+				{% } %}
+      		{% } %}
+			{% if(o.orderList.orderLine[i].topping && o.orderList.orderLine[i].topping.length>0) { %}
+				{% for(var m=0,topping=o.orderList.orderLine[i].topping,toppingLen=o.orderList.orderLine[i].topping.length;m<toppingLen;m++){ %}
+					<line>
+						<text align ="left" length="18">  +{%= topping[m].name || "" %}</text>
+						<text align ="right" length="10">{%= topping[m].retail && topping[m].retail %}</text>
+						<text align ="right" length="6">x{%= topping[m].qty %}</text>
+						<text align ="right" length="8">{%= topping[m].groessAmount && topping[m].groessAmount %}</text>
+				</line>
+				{% } %}
+			{% } %}
+		{% } %}
+		<line>
+			<text>------------------------------------------</text>
+		</line>
+		<line>
+          	<text align="left" length="22">服务费:</text>
+            <text align ="right" length="20">{%= o.orderList.serviceFee.value || 0  %}</text>
+		</line>			
+		<line>
+			<text align="center" length="42">--------------------------------------------------</text>
+		</line>
+		{% if(o.orderList.promotion.discount && o.orderList.promotion.discount.length>0) { %}
+			{% for(var p=0; p < o.orderList.promotion.discount.length ; p++){ %}
+            <line>
+                <text align="left" length="22">{%= o.orderList.promotion.discount[p].name || ""  %}</text>
+                <text align ="right" length="20">{%= o.orderList.promotion.discount[p].discount%}</text>
+            </line>
+            {% } %}
+		{% } %}
+		<line>
+            <text align="left" length="22">折扣合计:</text>
+            <text align ="right" length="20">{%=o.orderList.discountAmount || 0 %}</text>
+		</line>
+		<line>
+			<text align="center" length="42">--------------------------------------------------</text>
+		</line>
+		<line></line>
+		<line size="2">
+          	<text align="left" length="12">总计（RMB）:</text>
+            <text align ="right" length="9">{%=o.orderList.netAmount || 0%}</text>
+		</line>
+        {% } %}
+        <line>
+			<text>==========================================</text>
+		</line>
+		<line>
+			<text align="center" length="42">此收据是您结账的唯一对账凭证，请保留</text>
+		</line>
+		<line>
+			<text align="center" length="42">Please retain charge docket as</text>
+			<text align="center" length="42">your supporting document.</text>
+		</line>
+		<line>
+			<text align="center" length="42">多谢惠顾  请再光临</text>
+		</line>
+		<line>
+			<text align="center" length="42">{%= %}</text>
+		</line>
+		<line>
+			<text align="center" length="42">{%= %}</text>
+		</line>
+		<line>
+			<text align="center" length="42">{%= %}</text>
+		</line>
+		<line>
+			<text align="center" length="42">{%= %}</text>
+		</line>
+		</ticket>
+	</output>
